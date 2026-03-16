@@ -1,0 +1,255 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* OralScan AI Design System - Medical Blue/White Theme */
+
+@layer base {
+  :root {
+    /* Core Colors */
+    --background: 210 20% 98%;
+    --foreground: 210 40% 12%;
+
+    /* Cards */
+    --card: 0 0% 100%;
+    --card-foreground: 210 40% 12%;
+
+    /* Popover */
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 40% 12%;
+
+    /* Primary - Medical Blue */
+    --primary: 207 90% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary */
+    --secondary: 207 30% 94%;
+    --secondary-foreground: 207 90% 35%;
+
+    /* Muted */
+    --muted: 210 20% 96%;
+    --muted-foreground: 210 15% 50%;
+
+    /* Accent */
+    --accent: 207 100% 95%;
+    --accent-foreground: 207 90% 40%;
+
+    /* Destructive */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Status Colors */
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 0%;
+    --info: 207 90% 54%;
+    --info-foreground: 0 0% 100%;
+
+    /* Risk Colors */
+    --risk-low: 160 84% 39%;
+    --risk-medium: 38 92% 50%;
+    --risk-high: 0 72% 51%;
+
+    /* UI Elements */
+    --border: 210 25% 88%;
+    --input: 210 25% 92%;
+    --ring: 207 90% 45%;
+    --radius: 0.75rem;
+
+    /* Sidebar (unused but keeping for compatibility) */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 210 40% 12%;
+    --sidebar-primary: 207 90% 45%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 207 30% 94%;
+    --sidebar-accent-foreground: 207 90% 35%;
+    --sidebar-border: 210 25% 88%;
+    --sidebar-ring: 207 90% 45%;
+  }
+
+  .dark {
+    --background: 220 18% 8%;
+    --foreground: 210 20% 92%;
+    --card: 220 18% 13%;
+    --card-foreground: 210 20% 92%;
+    --popover: 220 18% 13%;
+    --popover-foreground: 210 20% 92%;
+    --primary: 207 80% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 20%;
+    --secondary-foreground: 210 20% 88%;
+    --muted: 220 14% 16%;
+    --muted-foreground: 210 12% 58%;
+    --accent: 207 25% 18%;
+    --accent-foreground: 207 70% 80%;
+    --destructive: 0 62% 52%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 65% 40%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 80% 52%;
+    --warning-foreground: 0 0% 0%;
+    --info: 207 75% 58%;
+    --info-foreground: 0 0% 100%;
+    --border: 220 14% 22%;
+    --input: 220 14% 18%;
+    --ring: 207 80% 58%;
+    --sidebar-background: 220 18% 10%;
+    --sidebar-foreground: 210 20% 88%;
+    --sidebar-primary: 207 80% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 18%;
+    --sidebar-accent-foreground: 210 20% 88%;
+    --sidebar-border: 220 14% 22%;
+    --sidebar-ring: 207 80% 58%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+@layer components {
+  /* Mobile App Container */
+  .mobile-screen {
+    @apply min-h-screen bg-background flex flex-col max-w-md mx-auto;
+  }
+
+  /* Action Button Styles */
+  .btn-action {
+    @apply h-14 text-lg font-semibold rounded-xl shadow-sm transition-all active:scale-[0.98];
+  }
+
+  .btn-action-primary {
+    @apply btn-action bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
+  .btn-action-secondary {
+    @apply btn-action bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  }
+
+  .btn-action-outline {
+    @apply btn-action border-2 border-primary text-primary bg-transparent hover:bg-primary/5;
+  }
+
+  /* Card Styles */
+  .card-dashboard {
+    @apply bg-card rounded-2xl p-5 shadow-sm border border-border/50 transition-all active:scale-[0.98];
+  }
+
+  .card-result {
+    @apply bg-card rounded-2xl p-4 shadow-sm border border-border/50;
+  }
+
+  /* Progress Steps */
+  .step-indicator {
+    @apply flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold;
+  }
+
+  .step-active {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .step-completed {
+    @apply bg-success text-success-foreground;
+  }
+
+  .step-pending {
+    @apply bg-muted text-muted-foreground;
+  }
+
+  /* Risk Level Badges */
+  .risk-low {
+    @apply bg-[hsl(var(--risk-low))] text-white;
+  }
+
+  .risk-medium {
+    @apply bg-[hsl(var(--risk-medium))] text-black;
+  }
+
+  .risk-high {
+    @apply bg-[hsl(var(--risk-high))] text-white;
+  }
+
+  /* Status Badges */
+  .badge-success {
+    @apply bg-success/15 text-[hsl(var(--success))] border-success/30;
+  }
+
+  .badge-warning {
+    @apply bg-warning/15 text-[hsl(var(--warning))] border-warning/30;
+  }
+
+  .badge-info {
+    @apply bg-info/15 text-[hsl(var(--info))] border-info/30;
+  }
+
+  /* Input Styles */
+  .input-field {
+    @apply h-14 text-base rounded-xl border-2 border-border focus:border-primary bg-card px-4;
+  }
+
+  /* Header */
+  .screen-header {
+    @apply sticky top-0 z-10 bg-primary text-primary-foreground px-4 py-4 flex items-center gap-3;
+  }
+
+  /* Bottom Navigation */
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 bg-card border-t border-border px-4 py-2 flex justify-around items-center max-w-md mx-auto;
+  }
+
+  .bottom-nav-item {
+    @apply flex flex-col items-center gap-1 py-2 px-4 text-muted-foreground transition-colors;
+  }
+
+  .bottom-nav-item.active {
+    @apply text-primary;
+  }
+
+  /* Capture Frame */
+  .capture-frame {
+    @apply relative aspect-[4/3] rounded-2xl overflow-hidden bg-black border-4 border-primary/30;
+  }
+
+  /* Heatmap Overlay */
+  .heatmap-overlay {
+    @apply absolute inset-0 opacity-60 mix-blend-multiply;
+  }
+}
+
+@layer utilities {
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .animate-scan {
+    animation: scan 2s ease-in-out infinite;
+  }
+}
+
+@keyframes scan {
+  0%, 100% {
+    transform: translateY(0%);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(100%);
+    opacity: 1;
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">oralscan</string>
+    <string name="title_activity_main">oralscan</string>
+    <string name="package_name">com.oralscan.app</string>
+    <string name="custom_url_scheme">com.oralscan.app</string>
+</resources>
