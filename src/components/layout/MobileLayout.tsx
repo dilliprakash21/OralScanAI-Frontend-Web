@@ -9,7 +9,7 @@ interface MobileLayoutProps {
 
 export function MobileLayout({ children, className = "", noPadding = false, centered = false }: MobileLayoutProps) {
   return (
-    <div className={`mobile-screen ${noPadding ? "" : "px-4"} ${centered ? "justify-center" : ""} ${className}`}>
+    <div className={`page-container ${noPadding ? "" : "px-4"} ${centered ? "centered-container" : ""} ${className}`}>
       {children}
     </div>
   );

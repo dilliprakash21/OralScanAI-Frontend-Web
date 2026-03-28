@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { MobileLayout } from "@/components/layout/MobileLayout";
+import { AuthLayout } from "@/components/layout/AuthLayout";
 import { ActionButton } from "@/components/ui/ActionButton";
-import { Eye, EyeOff, Mail, Lock, User, Stethoscope, Phone, Building2, MapPin } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Stethoscope, Phone, Building2, MapPin, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -26,8 +26,13 @@ export default function SignupScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const rawRole = localStorage.getItem("userRole") || "health-worker";
+  const [rawRole, setRawRole] = useState(localStorage.getItem("userRole") || "health-worker");
   const role = rawRole === "health-worker" ? "health_worker" : rawRole;
+
+  const handleRoleToggle = (newRole: string) => {
+    setRawRole(newRole);
+    localStorage.setItem("userRole", newRole);
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,11 +40,11 @@ export default function SignupScreen() {
     // Validation
     const digits = phone.replace(/\D/g, "");
     if (digits.length !== 10) {
-      toast({ title: "Invalid phone", description: "Number must be exactly 10 digits.", variant: "destructive" });
+      toast({ title: "Validation Error", description: "Mobile number must be 10 digits.", variant: "destructive" });
       return;
     }
     if (!/^[6-9]/.test(digits)) {
-      toast({ title: "Invalid phone", description: "Number must start with 6, 7, 8, or 9.", variant: "destructive" });
+      toast({ title: "Validation Error", description: "Invalid mobile prefix.", variant: "destructive" });
       return;
     }
 
@@ -56,12 +61,12 @@ export default function SignupScreen() {
         password,
       });
 
-      toast({ title: "OTP Sent", description: "Please check your email for the verification code." });
+      toast({ title: "Registration code sent", description: "Verify your identity via the code sent to your email." });
       navigate(`/verify-otp?email=${encodeURIComponent(email.trim().toLowerCase())}&mode=signup`);
     } catch (err: any) {
       toast({
-        title: "Signup failed",
-        description: err?.message || "Please try again.",
+        title: "Registry Failed",
+        description: err?.message || "Could not complete registration.",
         variant: "destructive",
       });
     } finally {
@@ -70,122 +75,142 @@ export default function SignupScreen() {
   };
 
   return (
-    <MobileLayout centered className="bg-background py-10">
-      <div className="w-full max-w-sm mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex flex-col items-center text-center space-y-4">
-          <div className="w-20 h-20 bg-card rounded-2xl p-3 shadow-lg border border-border/50">
-            <img src="/logo.png" alt="OralScan AI" className="w-full h-full object-contain" />
+    <AuthLayout 
+      title="Create Account" 
+      subtitle={`Verifying your registration for ${role.replace("_", " ")}`}
+    >
+      <div className="mb-8 p-1.5 bg-secondary/10 rounded-2xl flex gap-2">
+        <button
+          onClick={() => handleRoleToggle("dentist")}
+          className={`flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+            rawRole === "dentist" 
+              ? "bg-card text-primary shadow-lg ring-1 ring-primary/20" 
+              : "text-muted-foreground hover:bg-secondary/20"
+          }`}
+        >
+          Clinical Dentist
+        </button>
+        <button
+          onClick={() => handleRoleToggle("health-worker")}
+          className={`flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+            rawRole === "health-worker" 
+              ? "bg-card text-success shadow-lg ring-1 ring-success/20" 
+              : "text-muted-foreground hover:bg-secondary/20"
+          }`}
+        >
+          Health Worker
+        </button>
+      </div>
+
+      <form onSubmit={handleSignup} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Full Name</Label>
+              <div className="relative group">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <Input id="name" className="pl-9 h-14 bg-secondary/5 border-2 border-border/50 rounded-xl" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Dr. John Doe" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Email Address</Label>
+              <div className="relative group">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <Input id="email" type="email" className="pl-9 h-14 bg-secondary/5 border-2 border-border/50 rounded-xl" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="name@email.com" />
+              </div>
+            </div>
           </div>
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Create Account</h1>
-            <p className="text-sm text-muted-foreground">Join OralScan AI as a {role.replace("_", " ")}</p>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Mobile Number</Label>
+            <div className="relative group">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-black text-muted-foreground">+91</span>
+              <Input
+                id="phone"
+                type="tel"
+                className="pl-12 h-14 bg-secondary/5 border-2 border-border/50 rounded-xl"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                placeholder="0000000000"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="clinic" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Clinic Name</Label>
+              <div className="relative group">
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <Input id="clinic" className="pl-9 h-14 bg-secondary/5 border-2 border-border/50 rounded-xl" value={clinic} onChange={(e) => setClinic(e.target.value)} placeholder="Hospital Name" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="location" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Location / City</Label>
+              <div className="relative group">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <Input id="location" className="pl-9 h-14 bg-secondary/5 border-2 border-border/50 rounded-xl" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City / Region" />
+              </div>
+            </div>
+          </div>
+
+          {role === "dentist" && (
+            <div className="space-y-2">
+              <Label htmlFor="license" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Professional License</Label>
+              <div className="relative group">
+                <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <Input id="license" className="pl-9 h-14 bg-secondary/5 border-2 border-border/50 rounded-xl" value={licenseNo} onChange={(e) => setLicenseNo(e.target.value)} required placeholder="REG-000000" />
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-1">Password</Label>
+            <div className="relative group">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                className="pl-9 pr-10 h-14 bg-secondary/5 border-2 border-border/50 rounded-xl"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
         </div>
 
-        <form onSubmit={handleSignup} className="space-y-5 animate-slide-up">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Full name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input id="name" className="pl-9 h-12" value={name} onChange={(e) => setName(e.target.value)} required placeholder="John Doe" />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input id="email" type="email" className="pl-9 h-12" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="name@example.com" />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone number</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">+91</span>
-                <Input
-                  id="phone"
-                  type="tel"
-                  className="pl-12 h-12"
-                  value={phone}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, "").slice(0, 10);
-                    setPhone(val);
-                  }}
-                  placeholder="0000000000"
-                  required
-                />
-              </div>
-              <p className="text-[10px] text-muted-foreground px-1">Must be 10 digits starting with 6-9</p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="clinic">Clinic / Hospital</Label>
-                <div className="relative">
-                  <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="clinic" className="pl-9 h-12" value={clinic} onChange={(e) => setClinic(e.target.value)} placeholder="Hospital name" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="location">Location</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="location" className="pl-9 h-12" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City" />
-                </div>
-              </div>
-            </div>
-
-            {role === "dentist" && (
-              <div className="space-y-2">
-                <Label htmlFor="license">License number</Label>
-                <div className="relative">
-                  <Stethoscope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="license" className="pl-9 h-12" value={licenseNo} onChange={(e) => setLicenseNo(e.target.value)} required />
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Create password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  className="pl-9 pr-10 h-12"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={6}
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <ActionButton type="submit" fullWidth disabled={loading} className="h-12 text-base shadow-lg shadow-primary/20 mt-2">
-            {loading ? "Creating account..." : "Create account"}
+        <div className="pt-2">
+          <ActionButton 
+            type="submit" 
+            fullWidth 
+            disabled={loading} 
+            loading={loading}
+            className="h-16 text-lg font-black tracking-[0.2em] uppercase rounded-2xl shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            icon={!loading && <ChevronRight className="w-5 h-5" />}
+          >
+            Create Account
           </ActionButton>
+        </div>
 
-          <p className="text-sm text-center text-muted-foreground">
-            Already have an account?{" "}
-            <Link to="/login" className="font-semibold text-primary hover:underline underline-offset-4">
-              Login
-            </Link>
-          </p>
-        </form>
-      </div>
-    </MobileLayout>
+        <p className="text-xs text-center text-muted-foreground">
+          Existing practitioner?{" "}
+          <Link to="/login" className="font-black text-primary uppercase tracking-widest hover:underline underline-offset-8 decoration-2">
+            Sign In
+          </Link>
+        </p>
+      </form>
+    </AuthLayout>
   );
 }

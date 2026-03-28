@@ -1,11 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MobileLayout } from "@/components/layout/MobileLayout";
-import { ScreenHeader } from "@/components/layout/ScreenHeader";
-import { ActionButton } from "@/components/ui/ActionButton";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ProgressSteps } from "@/components/layout/ProgressSteps";
 import { useScreening } from "@/contexts/ScreeningContext";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const overrideReasons = [
@@ -36,7 +34,7 @@ export default function OverrideScreen() {
       overrideReason: finalReason,
     });
     toast.success("Risk level overridden");
-    navigate("/screening/referral");
+    navigate("/screening/save");
   };
 
   const riskColors: Record<string, string> = {
@@ -46,75 +44,144 @@ export default function OverrideScreen() {
   };
 
   return (
-    <MobileLayout className="pb-6">
-      <ScreenHeader title="Override Result" onBack={() => navigate("/screening/results")} />
-      <ProgressSteps currentStep={7} totalSteps={8} />
-
-      <div className="px-4 pt-4 space-y-5 animate-fade-in">
-        {/* Warning */}
-        <div className="flex items-start gap-3 bg-warning/10 border border-warning/30 rounded-xl p-4">
-          <AlertCircle className="w-5 h-5 text-warning mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="text-sm font-semibold text-foreground">Clinical Override</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Current AI result: <span className="font-semibold capitalize">{data.riskLevel} Risk</span>. 
-              Only override if clinically justified. All overrides are logged for audit purposes.
-            </p>
+    <DashboardLayout>
+      <div className="max-w-7xl mx-auto py-12 px-6">
+        <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-10 mb-12">
+          <div className="space-y-3">
+            <h1 className="text-4xl font-black text-foreground uppercase tracking-tight">Clinical Decision Override</h1>
+            <p className="text-muted-foreground font-medium text-lg">Manual calibration of AI inference results based on practitioner evaluation.</p>
+          </div>
+          <div className="w-full xl:max-w-md">
+            <ProgressSteps currentStep={7} totalSteps={7} />
           </div>
         </div>
 
-        {/* Risk Selection */}
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-foreground">New Risk Level</p>
-          <div className="grid grid-cols-3 gap-2">
-            {riskOptions.map((risk) => (
-              <button
-                key={risk}
-                onClick={() => setSelectedRisk(risk)}
-                className={`h-12 rounded-xl border-2 font-semibold text-sm capitalize transition-all ${
-                  selectedRisk === risk ? riskColors[risk] : "border-border bg-card text-foreground"
-                }`}
-              >
-                {risk}
-              </button>
-            ))}
+        <div className="bg-card border border-border/50 rounded-[4rem] p-10 md:p-16 shadow-2xl space-y-16 animate-fade-in relative overflow-hidden">
+          {/* Decorative background element */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-warning/5 rounded-full blur-[100px] -mr-32 -mt-32" />
+
+          {/* Critical Warning Header */}
+          <div className="flex flex-col md:flex-row items-center gap-10 bg-warning/5 border-4 border-warning/20 rounded-[3rem] p-10 relative z-10">
+            <div className="w-24 h-24 rounded-[2rem] bg-warning/10 flex items-center justify-center shrink-0 shadow-lg">
+               <AlertCircle className="w-12 h-12 text-warning" />
+            </div>
+            <div className="space-y-2 text-center md:text-left">
+              <h2 className="text-2xl font-black text-foreground uppercase tracking-tight">Medico-Legal Protocol Acknowledgement</h2>
+              <p className="text-muted-foreground font-bold leading-relaxed max-w-3xl">
+                You are manually overriding an automated <span className="text-warning font-black uppercase tracking-tighter mx-1">{data.riskLevel} Risk</span> assessment. 
+                This action constitutes a professional clinical judgment and will be permanently logged 
+                with your practitioner credentials. Ensure visual correlation and patient history align with this modification.
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-12 gap-16 relative z-10">
+            {/* Left: Risk Selection */}
+            <div className="xl:col-span-5 space-y-10">
+               <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-2 h-8 bg-primary rounded-full" />
+                    <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter">Corrected Risk Level</h3>
+                  </div>
+                  <p className="text-muted-foreground text-sm font-medium">Select the risk category that aligns with your clinical inspection.</p>
+               </div>
+
+               <div className="grid grid-cols-1 gap-6">
+                  {riskOptions.map((risk) => (
+                    <button
+                      key={risk}
+                      onClick={() => setSelectedRisk(risk)}
+                      className={`group relative flex items-center justify-between p-8 rounded-[2.5rem] border-4 transition-all duration-500 ${
+                        selectedRisk === risk 
+                          ? riskColors[risk].split(' ')[0] + " " + riskColors[risk].split(' ')[1] + " shadow-2xl scale-[1.02]"
+                          : "border-border bg-secondary/10 hover:border-primary/30 hover:bg-secondary/20"
+                      }`}
+                    >
+                      <div className="flex items-center gap-6">
+                         <div className={`w-6 h-6 rounded-full border-4 transition-all duration-500 ${selectedRisk === risk ? "bg-white border-transparent scale-125" : "border-muted-foreground/30 group-hover:border-primary/50"}`} />
+                         <span className={`text-2xl font-black uppercase tracking-[0.1em] ${selectedRisk === risk ? riskColors[risk].split(' ')[2] : "text-muted-foreground/60"}`}>
+                           {risk} Risk
+                         </span>
+                      </div>
+                      {selectedRisk === risk && (
+                         <div className="animate-in fade-in zoom-in spin-in-12 duration-700">
+                            <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-md">
+                               <div className="w-3 h-3 rounded-full bg-current animate-pulse" />
+                            </div>
+                         </div>
+                      )}
+                    </button>
+                  ))}
+               </div>
+            </div>
+
+            {/* Right: Reasoning & Justification */}
+            <div className="xl:col-span-7 space-y-10">
+               <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-2 h-8 bg-primary rounded-full" />
+                    <h3 className="text-2xl font-black text-foreground uppercase tracking-tighter">Clinical Justification</h3>
+                  </div>
+                  <p className="text-muted-foreground text-sm font-medium">Document the primary rationale for this variance from the AI assessment.</p>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {overrideReasons.map((reason) => (
+                    <label key={reason} className={`group flex items-start gap-4 p-6 rounded-[2rem] border-2 cursor-pointer transition-all duration-300 ${
+                      selectedReason === reason 
+                        ? "border-primary bg-primary/5 shadow-xl ring-1 ring-primary/20" 
+                        : "border-border bg-secondary/5 hover:bg-secondary/10 hover:border-primary/20"
+                    }`}>
+                      <div className="relative flex items-center justify-center mt-1">
+                         <input
+                           type="radio"
+                           name="reason"
+                           checked={selectedReason === reason}
+                           onChange={() => setSelectedReason(reason)}
+                           className="peer opacity-0 absolute w-6 h-6 cursor-pointer"
+                         />
+                         <div className="w-6 h-6 rounded-lg border-2 border-muted-foreground/30 peer-checked:border-primary peer-checked:bg-primary transition-all flex items-center justify-center">
+                            <CheckCircle className="w-4 h-4 text-white scale-0 peer-checked:scale-100 transition-transform" />
+                         </div>
+                      </div>
+                      <span className={`text-sm font-black leading-tight uppercase tracking-tight ${selectedReason === reason ? "text-foreground" : "text-muted-foreground/80 group-hover:text-foreground"}`}>
+                        {reason}
+                      </span>
+                    </label>
+                  ))}
+               </div>
+
+               {selectedReason === "Other clinical reason" && (
+                 <div className="animate-in slide-in-from-top-6 duration-500 pt-4">
+                    <textarea
+                      placeholder="Provide exhaustive clinical professional justification for secondary review..."
+                      value={customReason}
+                      onChange={(e) => setCustomReason(e.target.value)}
+                      rows={5}
+                      className="w-full px-8 py-8 rounded-[2.5rem] border-2 border-primary/30 focus:border-primary bg-background text-foreground outline-none text-base font-medium resize-none shadow-2xl transition-all"
+                    />
+                 </div>
+               )}
+            </div>
+          </div>
+
+          <div className="pt-16 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-10">
+            <button 
+              onClick={() => navigate("/screening/results")}
+              className="w-full md:w-auto px-12 py-6 rounded-2xl font-black text-muted-foreground hover:bg-secondary transition-all uppercase tracking-widest text-xs"
+            >
+              Discard modification
+            </button>
+            <button 
+              onClick={handleSave} 
+              className="w-full md:flex-1 max-w-2xl bg-primary text-primary-foreground h-24 rounded-[2.5rem] font-black tracking-[0.3em] uppercase hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-primary/40 flex items-center justify-center gap-6 text-xl"
+            >
+              Verify & Apply Change
+              <CheckCircle className="w-8 h-8" />
+            </button>
           </div>
         </div>
-
-        {/* Reason Selection */}
-        <div className="space-y-2">
-          <p className="text-sm font-semibold text-foreground">Reason for Override *</p>
-          <div className="space-y-2">
-            {overrideReasons.map((reason) => (
-              <label key={reason} className="flex items-center gap-3 p-3 rounded-xl border border-border cursor-pointer hover:bg-muted/50 transition-colors">
-                <input
-                  type="radio"
-                  name="reason"
-                  checked={selectedReason === reason}
-                  onChange={() => setSelectedReason(reason)}
-                  className="accent-primary"
-                />
-                <span className="text-sm text-foreground">{reason}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* Custom reason */}
-        {selectedReason === "Other clinical reason" && (
-          <textarea
-            placeholder="Describe the clinical reason..."
-            value={customReason}
-            onChange={(e) => setCustomReason(e.target.value)}
-            rows={3}
-            className="w-full px-4 py-3 rounded-xl border-2 border-border focus:border-primary bg-card text-foreground outline-none text-sm resize-none"
-          />
-        )}
-
-        <ActionButton onClick={handleSave}>
-          Confirm Override
-        </ActionButton>
       </div>
-    </MobileLayout>
+    </DashboardLayout>
   );
 }

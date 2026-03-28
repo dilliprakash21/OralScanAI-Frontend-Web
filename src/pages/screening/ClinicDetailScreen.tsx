@@ -1,7 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { MobileLayout } from "@/components/layout/MobileLayout";
-import { ScreenHeader } from "@/components/layout/ScreenHeader";
-import { ActionButton } from "@/components/ui/ActionButton";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { MapPin, Phone, Clock, Star } from "lucide-react";
 
 const CLINIC_DATA: Record<string, {
@@ -18,67 +16,125 @@ export default function ClinicDetailScreen() {
   const clinic = CLINIC_DATA[id || "1"] || CLINIC_DATA["1"];
 
   return (
-    <MobileLayout className="pb-6">
-      <ScreenHeader title="Clinic Details" onBack={() => navigate(-1)} />
-
-      <div className="px-4 pt-4 space-y-4 animate-fade-in">
-        {/* Clinic Header */}
-        <div className="bg-card rounded-2xl border border-border p-5">
-          <div className="flex items-start gap-3 mb-4">
-            <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <MapPin className="w-7 h-7 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h2 className="font-bold text-foreground text-lg leading-tight">{clinic.name}</h2>
-              <span className="inline-block mt-1 text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">
-                {clinic.speciality}
-              </span>
-            </div>
+    <DashboardLayout>
+      <div className="max-w-5xl mx-auto py-8 px-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+          <div>
+            <h1 className="text-3xl font-black text-foreground mb-1">Facility Profile</h1>
+            <p className="text-muted-foreground font-medium">Detailed clinical and operational information for {clinic.name}</p>
           </div>
-          <div className="flex items-center gap-1 mb-1">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className={`w-4 h-4 ${i < Math.floor(clinic.rating) ? "text-warning fill-warning" : "text-muted"}`} />
-            ))}
-            <span className="text-sm text-muted-foreground ml-1">{clinic.rating}</span>
-          </div>
+          <button 
+            onClick={() => navigate(-1)}
+            className="px-6 py-3 rounded-2xl bg-secondary/50 font-black text-muted-foreground hover:bg-secondary transition-all flex items-center gap-2"
+          >
+            BACK TO REFERRAL
+          </button>
         </div>
 
-        {/* Contact Info */}
-        <div className="bg-card rounded-xl border border-border p-4 space-y-3">
-          <p className="text-sm font-semibold text-foreground">Contact Information</p>
-          {[
-            { icon: MapPin, label: "Address", value: clinic.address },
-            { icon: Phone, label: "Phone", value: clinic.phone },
-            { icon: Clock, label: "Hours", value: clinic.hours },
-          ].map(({ icon: Icon, label, value }) => (
-            <div key={label} className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                <Icon className="w-4 h-4 text-primary" />
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground">{label}</p>
-                <p className="text-sm text-foreground font-medium">{value}</p>
-              </div>
-            </div>
-          ))}
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 animate-fade-in">
+          {/* Left: Main Info */}
+          <div className="lg:col-span-8 space-y-12">
+            {/* Hero Card */}
+            <div className="bg-card border border-border/50 rounded-[3rem] p-10 md:p-14 shadow-sm relative overflow-hidden">
+               <div className="absolute top-0 right-0 p-12 opacity-5">
+                  <MapPin className="w-48 h-48 text-primary" />
+               </div>
+               <div className="relative z-10 space-y-8">
+                  <div className="flex flex-col md:flex-row md:items-start gap-8">
+                     <div className="w-24 h-24 rounded-[2rem] bg-primary/10 flex items-center justify-center shrink-0 border-4 border-white shadow-xl">
+                        <MapPin className="w-12 h-12 text-primary" />
+                     </div>
+                     <div className="space-y-4">
+                        <div className="flex flex-wrap items-center gap-3">
+                           <span className="text-[10px] font-black uppercase tracking-widest bg-primary text-primary-foreground px-4 py-1.5 rounded-full shadow-lg shadow-primary/20">
+                              {clinic.speciality}
+                           </span>
+                           <div className="flex items-center gap-1.5 bg-warning/10 px-3 py-1.5 rounded-full">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star key={i} className={`w-3.5 h-3.5 ${i < Math.floor(clinic.rating) ? "text-warning fill-warning" : "text-muted"}`} />
+                              ))}
+                              <span className="text-xs font-black text-warning ml-1">{clinic.rating}</span>
+                           </div>
+                        </div>
+                        <h2 className="text-4xl font-black text-foreground leading-tight">{clinic.name}</h2>
+                     </div>
+                  </div>
 
-        {/* Services */}
-        <div className="bg-card rounded-xl border border-border p-4">
-          <p className="text-sm font-semibold text-foreground mb-3">Services Available</p>
-          <div className="flex flex-wrap gap-2">
-            {clinic.services.map((service) => (
-              <span key={service} className="text-xs bg-secondary text-secondary-foreground px-3 py-1 rounded-full">
-                {service}
-              </span>
-            ))}
+                  <div className="pt-8 border-t border-border/50 grid grid-cols-1 md:grid-cols-2 gap-8">
+                     {[
+                       { icon: MapPin, label: "CLINICAL ADDRESS", value: clinic.address },
+                       { icon: Clock, label: "OPD HOURS", value: clinic.hours },
+                     ].map(({ icon: Icon, label, value }) => (
+                       <div key={label} className="space-y-2">
+                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{label}</p>
+                          <div className="flex gap-3">
+                             <div className="w-10 h-10 rounded-xl bg-secondary/30 flex items-center justify-center shrink-0">
+                                <Icon className="w-5 h-5 text-primary" />
+                             </div>
+                             <p className="text-sm font-bold text-foreground leading-relaxed">{value}</p>
+                          </div>
+                       </div>
+                     ))}
+                  </div>
+               </div>
+            </div>
+
+            {/* Services Grid */}
+            <div className="space-y-6 px-4">
+               <h3 className="text-2xl font-black text-foreground uppercase tracking-widest flex items-center gap-4">
+                  <div className="w-2 h-8 bg-primary rounded-full transition-all" />
+                  Clinical Services Available
+               </h3>
+               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                 {clinic.services.map((service) => (
+                   <div key={service} className="bg-secondary/10 border border-border/50 rounded-2xl p-4 text-center hover:bg-primary/5 hover:border-primary/30 transition-all cursor-default group">
+                     <p className="text-xs font-black text-muted-foreground group-hover:text-primary transition-colors">{service}</p>
+                   </div>
+                 ))}
+               </div>
+            </div>
+          </div>
+
+          {/* Right: Quick Actions */}
+          <div className="lg:col-span-4 space-y-6">
+             <div className="bg-card border border-border/50 rounded-[2.5rem] p-8 shadow-sm space-y-8">
+                <div className="space-y-4">
+                   <h4 className="text-xl font-black text-foreground">Contact Facility</h4>
+                   <p className="text-sm text-muted-foreground font-medium leading-relaxed">
+                      Liaise with the facility administration directly for appointment scheduling 
+                      or clinical handoff protocols.
+                   </p>
+                </div>
+
+                <div className="space-y-4">
+                   <div className="p-6 bg-secondary/20 rounded-3xl border border-border/50 flex flex-col items-center gap-2 text-center">
+                      <Phone className="w-8 h-8 text-primary mb-2" />
+                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">DIAL DIRECT</p>
+                      <p className="text-xl font-black text-foreground">{clinic.phone}</p>
+                   </div>
+                   
+                   <button className="w-full py-5 rounded-2xl bg-primary text-primary-foreground font-black tracking-widest uppercase hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-primary/20">
+                      SCHEDULE VISIT
+                   </button>
+                   <button className="w-full py-5 rounded-2xl border-2 border-border font-black text-foreground hover:bg-secondary transition-all">
+                      NAVIGATE TO CLINIC
+                   </button>
+                </div>
+             </div>
+
+             <div className="p-8 bg-info/5 border-2 border-info/10 rounded-[2rem] space-y-4">
+                <h5 className="font-black text-foreground flex items-center gap-2">
+                   <div className="w-1.5 h-1.5 rounded-full bg-info" />
+                   Clinic Note
+                </h5>
+                <p className="text-xs text-muted-foreground font-medium leading-relaxed">
+                   This facility is part of the approved OralScan AI Referral Network. 
+                   Data shared with this facility is synchronized via secure HL7/FHIR protocols.
+                </p>
+             </div>
           </div>
         </div>
-
-        <ActionButton onClick={() => navigate(-1)}>
-          Back to Referral
-        </ActionButton>
       </div>
-    </MobileLayout>
+    </DashboardLayout>
   );
 }

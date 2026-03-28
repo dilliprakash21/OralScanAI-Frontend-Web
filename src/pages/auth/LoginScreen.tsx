@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { MobileLayout } from "@/components/layout/MobileLayout";
+import { Mail, Lock, Eye, EyeOff, ChevronRight } from "lucide-react";
+import { AuthLayout } from "@/components/layout/AuthLayout";
 import { ActionButton } from "@/components/ui/ActionButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,12 +23,12 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await signIn(email.trim().toLowerCase(), password);
-      toast({ title: "Logged in" });
+      toast({ title: "Welcome back!", description: "Session authenticated successfully." });
       navigate("/dashboard");
     } catch (err: any) {
       toast({
-        title: "Login failed",
-        description: err?.message || "Please check your credentials and try again.",
+        title: "Authentication Failed",
+        description: err?.message || "Please check your clinical credentials.",
         variant: "destructive",
       });
     } finally {
@@ -37,81 +37,90 @@ export default function LoginScreen() {
   };
 
   return (
-    <MobileLayout centered className="bg-background">
-      <div className="w-full max-w-sm mx-auto space-y-8 py-10">
-        {/* Logo & Header */}
-        <div className="flex flex-col items-center text-center space-y-4">
-          <div className="w-24 h-24 bg-card rounded-3xl p-4 shadow-xl border border-border/50 animate-fade-in">
-            <img src="/logo.png" alt="OralScan AI" className="w-full h-full object-contain" />
+    <AuthLayout 
+      title="Login" 
+      subtitle="Access your account."
+    >
+      <form onSubmit={handleLogin} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="space-y-6">
+          <div className="space-y-3">
+            <Label htmlFor="email" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
+              Email Address
+            </Label>
+            <div className="relative group">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors">
+                <Mail className="w-full h-full" />
+              </div>
+              <Input
+                id="email"
+                type="email"
+                className="pl-12 h-16 bg-secondary/5 border-2 border-border/50 focus:border-primary/50 rounded-2xl transition-all"
+                placeholder="name@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
           </div>
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome Back</h1>
-            <p className="text-muted-foreground">Log in to your OralScan AI account</p>
+
+          <div className="space-y-3">
+            <div className="flex items-center justify-between px-1">
+              <Label htmlFor="password" className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                Password
+              </Label>
+              <Link 
+                to="/forgot-password" 
+                className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-primary/80 transition-colors"
+              >
+                Forgot Password?
+              </Link>
+            </div>
+            <div className="relative group">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors">
+                <Lock className="w-full h-full" />
+              </div>
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                className="pl-12 pr-12 h-16 bg-secondary/5 border-2 border-border/50 focus:border-primary/50 rounded-2xl transition-all"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-5 animate-slide-up">
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  className="pl-9 h-12"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  className="pl-9 pr-10 h-12"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-end">
-            <Link to="/forgot-password" virtual-link-id="forgot-password" className="text-sm font-medium text-primary hover:underline underline-offset-4">
-              Forgot password?
-            </Link>
-          </div>
-
-          <ActionButton type="submit" fullWidth disabled={loading} className="h-12 text-base shadow-lg shadow-primary/20">
-            {loading ? "Logging in..." : "Login"}
+        <div className="pt-2">
+          <ActionButton 
+            type="submit" 
+            fullWidth 
+            disabled={loading} 
+            loading={loading}
+            className="h-20 text-lg font-black tracking-[0.2em] uppercase rounded-[1.5rem] shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+            icon={!loading && <ChevronRight className="w-6 h-6" />}
+          >
+            Sign In
           </ActionButton>
+        </div>
 
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              Don't have an account?{" "}
-              <Link to="/signup" virtual-link-id="signup" className="font-semibold text-primary hover:underline underline-offset-4">
-                Create account
-              </Link>
-            </p>
-          </div>
-        </form>
-      </div>
-    </MobileLayout>
+        <div className="text-center pt-4">
+          <p className="text-xs font-medium text-muted-foreground">
+            New practitioner?{" "}
+            <Link to="/signup" className="font-black text-primary uppercase tracking-widest hover:underline underline-offset-8 decoration-2">
+              Create Account
+            </Link>
+          </p>
+        </div>
+      </form>
+    </AuthLayout>
   );
 }

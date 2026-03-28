@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MobileLayout } from "@/components/layout/MobileLayout";
-import { ScreenHeader } from "@/components/layout/ScreenHeader";
-import { ActionButton } from "@/components/ui/ActionButton";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ProgressSteps } from "@/components/layout/ProgressSteps";
 import { useScreening } from "@/contexts/ScreeningContext";
 import { Shield, FileText, CheckCircle } from "lucide-react";
@@ -26,60 +24,79 @@ export default function ConsentScreen() {
   };
 
   return (
-    <MobileLayout className="pb-6">
-      <ScreenHeader title="Patient Consent" onBack={() => navigate("/dashboard")} />
-      <ProgressSteps currentStep={1} totalSteps={8} />
-
-      <div className="px-4 pt-4 space-y-5 animate-fade-in">
-        {/* Icon + Title */}
-        <div className="flex flex-col items-center gap-3 py-4">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <Shield className="w-8 h-8 text-primary" />
-          </div>
-          <div className="text-center">
-            <h2 className="text-xl font-bold text-foreground">Informed Consent</h2>
-            <p className="text-muted-foreground text-sm mt-1">
-              Please explain the following to the patient before proceeding
-            </p>
-          </div>
+    <DashboardLayout>
+      <div className="max-w-2xl mx-auto py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-black text-foreground mb-1">Patient Consent</h1>
+          <p className="text-muted-foreground font-medium">Step 1 of the screening protocol</p>
         </div>
 
-        {/* Consent Points */}
-        <div className="bg-card rounded-2xl border border-border p-4 space-y-3">
-          {consentPoints.map((point, i) => (
-            <div key={i} className="flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 text-success mt-0.5 flex-shrink-0" />
-              <p className="text-sm text-foreground leading-relaxed">{point}</p>
+        <ProgressSteps currentStep={1} totalSteps={7} />
+
+        <div className="mt-8 bg-card border border-border/50 rounded-[2.5rem] p-8 shadow-sm space-y-8 animate-fade-in">
+          {/* Icon + Title */}
+          <div className="flex items-center gap-6">
+            <div className="w-20 h-20 rounded-3xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Shield className="w-10 h-10 text-primary" />
             </div>
-          ))}
+            <div>
+              <h2 className="text-2xl font-black text-foreground">Informed Consent</h2>
+              <p className="text-muted-foreground font-medium mt-1">
+                Please review and explain the following protocol to the patient
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            <div className="bg-secondary/30 rounded-3xl p-6 space-y-4">
+              {consentPoints.map((point, i) => (
+                <div key={i} className="flex items-start gap-4">
+                  <div className="w-6 h-6 rounded-full bg-success/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <CheckCircle className="w-4 h-4 text-success" />
+                  </div>
+                  <p className="text-foreground font-medium leading-relaxed">{point}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex items-start gap-4 bg-info/5 border border-info/10 rounded-2xl p-6">
+              <FileText className="w-6 h-6 text-info shrink-0 mt-0.5" />
+              <p className="text-sm text-info/80 leading-relaxed font-medium">
+                This screening is conducted under applicable clinical guidelines. OralScan AI is a 
+                decision-support tool and does not replace professional clinical judgment.
+              </p>
+            </div>
+          </div>
+
+          <label className="flex items-start gap-4 p-6 rounded-3xl border-2 border-border/50 cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all group">
+            <div className="relative flex items-center">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                className="w-6 h-6 border-2 border-border rounded-lg accent-primary cursor-pointer transition-all"
+              />
+            </div>
+            <span className="text-foreground font-bold leading-relaxed group-hover:text-primary transition-colors">
+              Patient has been fully informed and verbally consents to the screening procedure and data processing.
+            </span>
+          </label>
+
+          <div className="pt-4">
+            <button 
+              onClick={handleProceed} 
+              disabled={!agreed}
+              className={`w-full py-5 rounded-[1.5rem] font-black tracking-widest uppercase transition-all shadow-xl shadow-primary/20 ${
+                agreed 
+                  ? "bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.98]" 
+                  : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
+              }`}
+            >
+              PROCEED TO PATIENT DETAILS
+            </button>
+          </div>
         </div>
-
-        {/* Legal Note */}
-        <div className="flex items-start gap-3 bg-accent rounded-xl p-4">
-          <FileText className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            This screening is conducted under applicable clinical guidelines. OralScan AI is a 
-            decision-support tool and does not replace professional clinical judgment.
-          </p>
-        </div>
-
-        {/* Checkbox */}
-        <label className="flex items-start gap-3 p-4 rounded-xl border-2 border-border cursor-pointer active:bg-muted/50 transition-colors">
-          <input
-            type="checkbox"
-            checked={agreed}
-            onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-0.5 w-5 h-5 accent-primary rounded"
-          />
-          <span className="text-sm text-foreground font-medium leading-relaxed">
-            Patient has been informed and verbally consents to the screening procedure
-          </span>
-        </label>
-
-        <ActionButton onClick={handleProceed} disabled={!agreed}>
-          Proceed to Patient Details
-        </ActionButton>
       </div>
-    </MobileLayout>
+    </DashboardLayout>
   );
 }

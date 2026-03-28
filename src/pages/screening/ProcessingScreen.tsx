@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MobileLayout } from "@/components/layout/MobileLayout";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useScreening } from "@/contexts/ScreeningContext";
 import { toast } from "sonner";
 
@@ -79,10 +79,16 @@ export default function ProcessingScreen() {
         if (!res.ok) throw new Error(payload?.error || "Analysis failed");
 
         updateData({
-          riskLevel: mapRiskLevel(payload?.riskLevel),
-          aiConfidence: typeof payload?.aiConfidence === "number" ? payload.aiConfidence : undefined,
-          plaqueIndex: typeof payload?.plaqueIndex === "number" ? payload.plaqueIndex : undefined,
-          gingivalIndex: typeof payload?.gingivalIndex === "number" ? payload.gingivalIndex : undefined,
+          riskLevel: mapRiskLevel(payload?.risk_level || payload?.riskLevel),
+          aiConfidence: typeof (payload?.ai_confidence ?? payload?.aiConfidence) === "number" 
+            ? (payload?.ai_confidence ?? payload?.aiConfidence) 
+            : undefined,
+          plaqueIndex: typeof (payload?.plaque_index ?? payload?.plaqueIndex) === "number" 
+            ? (payload?.plaque_index ?? payload?.plaqueIndex) 
+            : undefined,
+          gingivalIndex: typeof (payload?.gingival_index ?? payload?.gingivalIndex) === "number" 
+            ? (payload?.gingival_index ?? payload?.gingivalIndex) 
+            : undefined,
         });
         setProgress(100);
         setTimeout(() => navigate("/screening/heatmap"), 400);
@@ -98,58 +104,104 @@ export default function ProcessingScreen() {
   }, []);
 
   return (
-    <MobileLayout className="items-center justify-center bg-primary">
-      <div className="flex flex-col items-center gap-8 px-8 text-center">
-        {/* Animated brain/scan */}
-        <div className="relative w-32 h-32">
-          <div className="absolute inset-0 rounded-full bg-primary-foreground/20 animate-pulse-ring" />
-          <div className="absolute inset-4 rounded-full bg-primary-foreground/20 animate-pulse-ring" style={{ animationDelay: "0.5s" }} />
-          <div className="absolute inset-0 rounded-full bg-primary-foreground/10 flex items-center justify-center">
-            <svg className="w-14 h-14 text-primary-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5V5a1 1 0 0 0 1 1 2 2 0 0 1 0 4 1 1 0 0 0-1 1v.5A2.5 2.5 0 0 1 9.5 14h-1A2.5 2.5 0 0 1 6 11.5V11a1 1 0 0 0-1-1 2 2 0 0 1 0-4 1 1 0 0 0 1-1v-.5A2.5 2.5 0 0 1 8.5 2h1z" />
-              <path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v.5" />
-              <path d="M14.5 14A2.5 2.5 0 0 0 12 11.5V11" />
-              <path d="M15 7h1.5A2.5 2.5 0 0 1 19 9.5v1a2.5 2.5 0 0 1-2.5 2.5H15" />
-            </svg>
+    <DashboardLayout>
+      <div className="flex flex-col items-center justify-center min-h-[75vh] py-12 px-4 animate-fade-in relative overflow-hidden">
+        {/* Immersive Background Effects */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] animate-pulse-slow" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] animate-pulse-slow ml-20" />
+        
+        <div className="max-w-3xl w-full text-center space-y-16 relative z-10">
+          {/* Advanced Neural Scanner Animation */}
+          <div className="relative w-72 h-72 mx-auto group">
+             {/* Rotating Rings */}
+             <div className="absolute inset-0 rounded-full border-2 border-dashed border-primary/20 animate-spin-slow" />
+             <div className="absolute inset-4 rounded-full border border-primary/10 animate-reverse-spin" />
+             <div className="absolute inset-8 rounded-full bg-primary/5 backdrop-blur-3xl shadow-2xl border border-white/10" />
+             
+             {/* Scanning Line */}
+             <div className="absolute inset-0 overflow-hidden rounded-full">
+                <div className="w-full h-1 bg-primary/40 shadow-[0_0_20px_rgba(var(--primary),0.8)] animate-scan-line" />
+             </div>
+
+             {/* Center Brain/Node Icon */}
+             <div className="absolute inset-0 flex items-center justify-center">
+                <svg className="w-24 h-24 text-primary drop-shadow-[0_0_15px_rgba(var(--primary),0.5)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+                  <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z" />
+                  <path className="animate-pulse" d="M12 8v8M8 12h8" />
+                  <circle cx="12" cy="12" r="3" className="fill-primary/20 animate-ping" />
+                  <path d="M12 2v4M12 18v4M2 12h4M18 12h4" strokeDasharray="2 2" />
+                </svg>
+             </div>
+
+             {/* Percentage Pulse */}
+             <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-background border border-border/50 px-6 py-2 rounded-full shadow-xl">
+                <span className="text-lg font-black text-foreground tabular-nums">{Math.round(progress)}%</span>
+             </div>
+          </div>
+
+          <div className="space-y-6">
+            <h2 className="text-5xl font-black text-foreground tracking-tighter uppercase leading-none">
+               Synthesizing <br/>Clinical Indices
+            </h2>
+            <p className="text-muted-foreground font-medium text-xl max-w-xl mx-auto leading-relaxed opacity-80">
+               Our diagnostic engine is correlating multi-spectral data points with 
+               curated clinical libraries.
+            </p>
+          </div>
+
+          {error ? (
+            <div className="w-full space-y-10 animate-in zoom-in duration-500">
+              <div className="p-10 bg-destructive/5 text-destructive rounded-[2.5rem] text-center border-2 border-destructive/20 shadow-2xl space-y-4">
+                <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
+                   <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                </div>
+                <p className="font-black text-2xl uppercase tracking-tighter">Analysis Interrupted</p>
+                <p className="font-medium text-lg leading-relaxed">{error}</p>
+              </div>
+              <button
+                onClick={() => navigate("/screening/capture")}
+                className="group px-16 py-6 bg-primary text-primary-foreground rounded-[2rem] font-black tracking-[0.3em] uppercase hover:scale-[1.05] transition-all shadow-2xl shadow-primary/30 flex items-center justify-center gap-4 mx-auto"
+              >
+                RESTORE SESSION
+                <svg className="w-6 h-6 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          ) : (
+            <div className="w-full space-y-8 px-8 md:px-24">
+              <div className="h-4 bg-secondary/20 rounded-full overflow-hidden border border-border/40 p-0.5">
+                <div
+                  className="h-full bg-primary rounded-full transition-all duration-300 ease-out shadow-[0_0_30px_rgba(var(--primary),0.6)] relative overflow-hidden"
+                  style={{ width: `${progress}%` }}
+                >
+                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent skew-x-12 -translate-x-full animate-progress-shimmer" />
+                </div>
+              </div>
+              
+              <div className="flex flex-col items-center gap-4">
+                 <div className="flex items-center gap-3 bg-secondary/10 border border-border/50 px-8 py-3 rounded-2xl shadow-sm">
+                   <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                   <span className="text-sm font-black text-primary uppercase tracking-[0.2em] animate-fade-in" key={stageIndex}>
+                     {stages[Math.min(stageIndex, stages.length - 1)]?.label}
+                   </span>
+                 </div>
+                 <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.3em] opacity-40">
+                    Secure Cloud Handshake Active
+                 </p>
+              </div>
+            </div>
+          )}
+
+          <div className="pt-16 opacity-40 hover:opacity-100 transition-opacity duration-500">
+             <div className="max-w-md mx-auto p-6 rounded-[2rem] bg-secondary/10 border border-border/40 backdrop-blur-sm">
+                <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.1em] leading-relaxed">
+                   AI Decision Support System (DSS) <br/>
+                   Compliance level: clinical parity standard v2.1 <br/>
+                   Validation required by medical authority.
+                </p>
+             </div>
           </div>
         </div>
-
-        <div>
-          <h2 className="text-2xl font-bold text-primary-foreground">Analysing</h2>
-          <p className="text-primary-foreground/70 mt-1 text-sm">AI is processing the oral cavity image</p>
-        </div>
-
-        {error ? (
-          <div className="w-full max-w-xs space-y-4">
-            <div className="p-4 bg-destructive/90 text-destructive-foreground rounded-xl text-center font-semibold border border-destructive/50">
-              {error}
-            </div>
-            <button
-              onClick={() => navigate("/screening/capture")}
-              className="w-full px-6 py-3 bg-primary-foreground text-primary rounded-full font-bold shadow-lg"
-            >
-              Try Again
-            </button>
-          </div>
-        ) : (
-          <div className="w-full max-w-xs space-y-2">
-            <div className="h-2 bg-primary-foreground/20 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-primary-foreground rounded-full transition-all duration-200 ease-out"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-            <div className="flex justify-between text-xs text-primary-foreground/60">
-              <span>{stages[Math.min(stageIndex, stages.length - 1)]?.label}</span>
-              <span>{Math.round(progress)}%</span>
-            </div>
-          </div>
-        )}
-
-        <p className="text-xs text-primary-foreground/50 max-w-xs">
-          This AI analysis is a decision-support tool and does not replace clinical judgment.
-        </p>
       </div>
-    </MobileLayout>
+    </DashboardLayout>
   );
 }

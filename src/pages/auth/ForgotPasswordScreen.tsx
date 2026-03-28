@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { MobileLayout } from "@/components/layout/MobileLayout";
+import { AuthLayout } from "@/components/layout/AuthLayout";
 import { ActionButton } from "@/components/ui/ActionButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
-import { Mail, KeyRound, ArrowLeft } from "lucide-react";
+import { Mail, KeyRound, ArrowLeft, ChevronRight } from "lucide-react";
 
 export default function ForgotPasswordScreen() {
   const navigate = useNavigate();
@@ -24,14 +24,14 @@ export default function ForgotPasswordScreen() {
       setLoading(false);
       setSubmitted(true);
       toast({
-        title: "Reset code sent",
-        description: "Please check your email for the 6-digit verification code.",
+        title: "Code Sent",
+        description: "A verification code has been dispatched to your email.",
       });
     } catch (err: any) {
       setLoading(false);
       toast({
-        title: "Request failed",
-        description: err?.message || "Could not send reset code. Please try again.",
+        title: "Request Interrupted",
+        description: err?.message || "Could not authorize reset request.",
         variant: "destructive",
       });
     }
@@ -42,76 +42,80 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <MobileLayout centered className="bg-background">
-      <div className="w-full max-w-sm mx-auto space-y-8 py-10">
-        {/* Header */}
-        <div className="flex flex-col items-center text-center space-y-4">
-          <div className="w-20 h-20 bg-card rounded-2xl p-4 shadow-lg border border-border/50">
-            <img src="/logo.png" alt="OralScan AI" className="w-full h-full object-contain" />
+    <AuthLayout 
+      title="Reset Password" 
+      subtitle={!submitted ? "Enter your email to reset your password." : "Email verified. Proceed with validation."}
+    >
+      {!submitted ? (
+        <form onSubmit={handleSubmit} className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="space-y-3">
+            <Label htmlFor="email" className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
+              Email
+            </Label>
+            <div className="relative group">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors">
+                <Mail className="w-full h-full" />
+              </div>
+              <Input
+                id="email"
+                type="email"
+                className="pl-12 h-16 bg-secondary/5 border-2 border-border/50 focus:border-primary/50 rounded-2xl transition-all"
+                placeholder="name@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
           </div>
-          <div className="space-y-1">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Reset Password</h1>
-            <p className="text-sm text-muted-foreground px-4">
-              Enter the email associated with your account and we'll send you a code to reset your password.
+
+          <div className="pt-2">
+            <ActionButton 
+              type="submit" 
+              fullWidth 
+              loading={loading} 
+              className="h-20 text-lg font-black tracking-[0.2em] uppercase rounded-[1.5rem] shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              icon={!loading && <ChevronRight className="w-6 h-6" />}
+            >
+              Dispatch Code
+            </ActionButton>
+          </div>
+
+          <div className="text-center pt-4">
+            <Link to="/login" className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary flex items-center justify-center gap-2 transition-colors">
+              <ArrowLeft className="w-3 h-3" /> Back to Login
+            </Link>
+          </div>
+        </form>
+      ) : (
+        <div className="space-y-8 text-center animate-in zoom-in duration-500">
+          <div className="w-24 h-24 bg-success/5 border-2 border-success/20 text-success rounded-[2rem] flex items-center justify-center mx-auto shadow-xl">
+            <KeyRound className="w-10 h-10 animate-pulse" />
+          </div>
+          <div className="space-y-3">
+            <h2 className="text-2xl font-black text-foreground uppercase tracking-tight">Transmission Sent</h2>
+            <p className="text-sm text-muted-foreground font-medium leading-relaxed px-6">
+              A 6-digit verification code has been synchronized with <br/>
+              <span className="text-foreground font-bold">{email}</span>.
             </p>
           </div>
-        </div>
-
-        {!submitted ? (
-          <form onSubmit={handleSubmit} className="space-y-6 animate-slide-up">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  className="pl-9 h-12"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <ActionButton type="submit" fullWidth loading={loading} className="h-12 shadow-lg shadow-primary/20">
-              Send Reset Code
-            </ActionButton>
-
-            <div className="text-center">
-              <Link to="/login" className="text-sm font-medium text-muted-foreground hover:text-primary flex items-center justify-center gap-2">
-                <ArrowLeft className="w-4 h-4" /> Back to login
-              </Link>
-            </div>
-          </form>
-        ) : (
-          <div className="space-y-6 text-center animate-fade-in">
-            <div className="w-16 h-16 bg-success/10 text-success rounded-full flex items-center justify-center mx-auto">
-              <KeyRound className="w-8 h-8" />
-            </div>
-            <div className="space-y-2">
-              <h2 className="text-xl font-semibold">Check your email</h2>
-              <p className="text-sm text-muted-foreground px-6">
-                We've sent a 6-digit verification code to <strong>{email}</strong>.
-              </p>
-            </div>
+          <div className="space-y-4 pt-4">
             <ActionButton
               onClick={handleEnterCode}
               fullWidth
-              className="h-12 shadow-lg shadow-primary/20"
+              className="h-20 text-lg font-black tracking-[0.2em] uppercase rounded-[1.5rem] shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              icon={<ChevronRight className="w-6 h-6" />}
             >
-              Enter Code
+              Validate Code
             </ActionButton>
             <button
               onClick={() => setSubmitted(false)}
-              className="text-sm text-primary font-medium hover:underline"
+              className="text-[10px] font-black uppercase tracking-[0.3em] text-primary hover:text-primary/80 transition-colors"
             >
-              Try a different email
+              Change Email
             </button>
           </div>
-        )}
-      </div>
-    </MobileLayout>
+        </div>
+      )}
+    </AuthLayout>
   );
 }

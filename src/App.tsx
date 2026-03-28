@@ -25,6 +25,7 @@ import ChangePasswordScreen from "./pages/auth/ChangePasswordScreen";
 import DashboardScreen from "./pages/dashboard/DashboardScreen";
 import AdminDashboardScreen from "./pages/admin/AdminDashboardScreen";
 import CampModeScreen from "./pages/screening/CampModeScreen";
+import { DashboardLayout } from "./components/layout/DashboardLayout";
 
 // Screening
 import ConsentScreen from "./pages/screening/ConsentScreen";
@@ -116,8 +117,6 @@ const App = () => (
               <Route path="/screening/heatmap" element={<ProtectedRoute><HeatmapScreen /></ProtectedRoute>} />
               <Route path="/screening/results" element={<ProtectedRoute><ResultsScreen /></ProtectedRoute>} />
               <Route path="/screening/override" element={<ProtectedRoute><OverrideScreen /></ProtectedRoute>} />
-              <Route path="/screening/referral" element={<ProtectedRoute><ReferralScreen /></ProtectedRoute>} />
-              <Route path="/screening/clinic/:id" element={<ProtectedRoute><ClinicDetailScreen /></ProtectedRoute>} />
               <Route path="/screening/save" element={<ProtectedRoute><SaveRecordScreen /></ProtectedRoute>} />
 
               {/* Records */}

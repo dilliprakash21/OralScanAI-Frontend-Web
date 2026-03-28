@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { MobileLayout } from "@/components/layout/MobileLayout";
-import { ScreenHeader } from "@/components/layout/ScreenHeader";
-import { ActionButton } from "@/components/ui/ActionButton";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ProgressSteps } from "@/components/layout/ProgressSteps";
 import { useScreening } from "@/contexts/ScreeningContext";
 import { User, Phone, MapPin, Calendar, Navigation } from "lucide-react";
@@ -37,14 +35,14 @@ export default function PatientDetailsScreen() {
     }
   }, []);
 
-  const [patientName, setPatientName] = useState("");
-  const [age, setAge] = useState("");
+  const [patientName, setPatientName] = useState(screeningData.patientName || "");
+  const [age, setAge] = useState(screeningData.age ? String(screeningData.age) : "");
   const [ageError, setAgeError] = useState<string | null>(null);
-  const [dob, setDob] = useState("");
-  const [gender, setGender] = useState("");
-  const [phone, setPhone] = useState("");
+  const [dob, setDob] = useState(screeningData.dob || "");
+  const [gender, setGender] = useState(screeningData.gender || "");
+  const [phone, setPhone] = useState(screeningData.phone ? screeningData.phone.replace("+91", "") : "");
   const [phoneError, setPhoneError] = useState<string | null>(null);
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState(screeningData.location || "");
   const [fetchingLocation, setFetchingLocation] = useState(false);
 
   const handleNameChange = (val: string) => {
@@ -148,126 +146,221 @@ export default function PatientDetailsScreen() {
   maxDate.setFullYear(maxDate.getFullYear() - 4);
 
   return (
-    <MobileLayout className="pb-6">
-      <ScreenHeader title="Patient Details" onBack={() => navigate("/screening/consent")} />
-      <ProgressSteps currentStep={2} totalSteps={8} />
-
-      <div className="px-4 pt-4 space-y-4 animate-fade-in">
-        {/* Name */}
-        <div className="space-y-1">
-          <label className="text-sm font-semibold text-foreground">Full Name *</label>
-          <div className="relative">
-            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Patient's full name (letters only)"
-              value={patientName}
-              onChange={(e) => handleNameChange(e.target.value)}
-              className="w-full h-14 pl-12 pr-4 rounded-xl border-2 border-border focus:border-primary bg-card text-foreground outline-none text-base"
-            />
+    <DashboardLayout>
+      <div className="max-w-6xl mx-auto py-12 px-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-black text-foreground uppercase tracking-tight">Patient Intake</h1>
+            <p className="text-muted-foreground font-medium text-lg">Initialize clinical record with valid demographic and contact parameters.</p>
+          </div>
+          <div className="w-full md:max-w-xs">
+            <ProgressSteps currentStep={2} totalSteps={7} />
           </div>
         </div>
 
-        {/* Gender */}
-        <div className="space-y-1">
-          <label className="text-sm font-semibold text-foreground">Gender *</label>
-          <div className="grid grid-cols-3 gap-2">
-            {["Male", "Female", "Other"].map((g) => (
-              <button
-                key={g}
-                type="button"
-                onClick={() => setGender(g.toLowerCase())}
-                className={`h-12 rounded-xl border-2 text-sm font-semibold transition-all ${gender === g.toLowerCase()
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border bg-card text-foreground hover:border-primary/50"
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 animate-fade-in">
+          {/* Left: Primary Form Data */}
+          <div className="lg:col-span-8">
+            <div className="bg-card border border-border/50 rounded-[3rem] p-8 md:p-12 shadow-sm space-y-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-10">
+                <div className="space-y-4">
+                  <label className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Legal Full Name *</label>
+                  <div className="relative group">
+                    <User className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <input
+                      type="text"
+                      placeholder="e.g. Aditi Sharma"
+                      value={patientName}
+                      onChange={(e) => handleNameChange(e.target.value)}
+                      className="w-full h-16 pl-16 pr-6 rounded-2xl border-2 border-border/60 focus:border-primary bg-secondary/10 focus:bg-background text-lg font-bold transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Gender Identity *</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {["Male", "Female", "Other"].map((g) => (
+                      <button
+                        key={g}
+                        type="button"
+                        onClick={() => setGender(g.toLowerCase())}
+                        className={`h-16 rounded-2xl border-2 font-black uppercase text-xs tracking-widest transition-all ${gender === g.toLowerCase()
+                            ? "border-primary bg-primary text-primary-foreground shadow-xl shadow-primary/20 scale-[1.02]"
+                            : "border-border/40 bg-secondary/5 text-foreground hover:border-primary/40"
+                          }`}
+                      >
+                        {g}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Assigned DOB</label>
+                  <div className="relative group">
+                    <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors pointer-events-none" />
+                    <input
+                      type="date"
+                      value={dob}
+                      onChange={(e) => handleDobChange(e.target.value)}
+                      max={maxDate.toISOString().split("T")[0]}
+                      className="w-full h-16 pl-16 pr-6 rounded-2xl border-2 border-border/60 focus:border-primary bg-secondary/10 focus:bg-background text-lg font-bold transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Clinical Age Range *</label>
+                  <div className="relative group">
+                    <div className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground">YEARS</div>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="Min 4"
+                      value={age}
+                      onChange={(e) => handleAgeChange(e.target.value)}
+                      className={`w-full h-16 px-6 pr-16 rounded-2xl border-2 ${ageError ? "border-destructive" : "border-border/60 focus:border-primary"} bg-secondary/10 focus:bg-background text-lg font-bold transition-all outline-none`}
+                    />
+                  </div>
+                  {ageError && <p className="text-[10px] text-destructive font-black uppercase tracking-widest mt-1 ml-1">{ageError}</p>}
+                </div>
+
+                <div className="space-y-4 md:col-span-2">
+                  <label className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Contact Communication</label>
+                  <div className="flex group">
+                    <div className="flex items-center px-6 h-16 bg-foreground text-background border-2 border-r-0 border-foreground rounded-l-2xl text-lg font-black">
+                      +91
+                    </div>
+                    <div className="relative flex-1">
+                      <Phone className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        placeholder="Primary mobile for results sync"
+                        value={phone}
+                        onChange={(e) => handlePhoneChange(e.target.value)}
+                        maxLength={10}
+                        className={`w-full h-16 pl-16 pr-6 rounded-r-2xl border-2 ${phoneError ? "border-destructive" : "border-border/60 focus:border-primary"} bg-secondary/10 focus:bg-background text-lg font-bold transition-all outline-none`}
+                      />
+                    </div>
+                  </div>
+                  {phoneError && <p className="text-[10px] text-destructive font-black uppercase tracking-widest mt-1 ml-2">{phoneError}</p>}
+                </div>
+
+                <div className="space-y-4 md:col-span-2">
+                  <label className="text-[11px] font-black text-muted-foreground uppercase tracking-[0.2em] ml-1">Geographic Origin</label>
+                  <div className="relative group">
+                    <MapPin className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                    <input
+                      type="text"
+                      placeholder="Search village or fetch GPS coordinates"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      className="w-full h-16 pl-16 pr-20 rounded-2xl border-2 border-border/60 focus:border-primary bg-secondary/10 focus:bg-background text-lg font-bold transition-all outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleGetLocation}
+                      disabled={fetchingLocation}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 rounded-xl bg-primary text-primary-foreground hover:scale-110 active:scale-95 transition-all shadow-lg disabled:opacity-50 flex items-center justify-center"
+                    >
+                      <Navigation className={`w-5 h-5 ${fetchingLocation ? "animate-spin" : ""}`} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-10 border-t border-border/50 flex flex-col md:flex-row items-center justify-between gap-6">
+                 <button 
+                  onClick={() => navigate("/screening/consent")}
+                  className="w-full md:w-auto px-10 py-5 rounded-2xl font-black text-muted-foreground hover:bg-secondary transition-all uppercase tracking-widest text-xs"
+                >
+                  BACK TO CONSENT
+                </button>
+                <button 
+                  onClick={handleProceed} 
+                  disabled={!isValid}
+                  className={`w-full md:flex-1 max-w-lg py-6 rounded-[2rem] font-black tracking-[0.3em] uppercase transition-all shadow-2xl shadow-primary/30 ${
+                    isValid 
+                      ? "bg-primary text-primary-foreground hover:scale-[1.02] active:scale-[0.98]" 
+                      : "bg-muted text-muted-foreground cursor-not-allowed opacity-50"
                   }`}
-              >
-                {g}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* DOB + Age */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1">
-            <label className="text-sm font-semibold text-foreground">Date of Birth</label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="date"
-                value={dob}
-                onChange={(e) => handleDobChange(e.target.value)}
-                max={maxDate.toISOString().split("T")[0]}
-                className="w-full h-14 pl-10 pr-2 rounded-xl border-2 border-border focus:border-primary bg-card text-foreground outline-none text-sm"
-              />
+                >
+                  CONTINUE TO PREPARATION
+                </button>
+              </div>
             </div>
           </div>
-          <div className="space-y-1">
-            <label className="text-sm font-semibold text-foreground">Age (years)</label>
-            <input
-              type="text"
-              inputMode="numeric"
-              placeholder="Age (min 4)"
-              value={age}
-              onChange={(e) => handleAgeChange(e.target.value)}
-              className={`w-full h-14 px-4 rounded-xl border-2 ${ageError ? "border-destructive" : "border-border focus:border-primary"} bg-card text-foreground outline-none text-base`}
-            />
-            {ageError && <p className="text-xs text-destructive">{ageError}</p>}
+
+          {/* Right: Validation & Summary info */}
+          <div className="lg:col-span-4 space-y-8">
+             <div className="bg-foreground text-background rounded-[3.5rem] p-10 md:p-12 shadow-2xl space-y-10 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-1000">
+                   <User className="w-64 h-64" />
+                </div>
+                
+                <h3 className="text-2xl font-black leading-tight relative z-10">Data Integrity <br/>Verification</h3>
+                
+                <div className="space-y-8 relative z-10">
+                   <div className="flex items-center gap-5">
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${patientName.trim() ? "bg-success/20 text-success" : "bg-white/10 text-white/40"}`}>
+                         <User className="w-7 h-7" />
+                      </div>
+                      <div>
+                         <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Identification</p>
+                         <p className="text-sm font-black">{patientName.trim() || "Awaiting Input"}</p>
+                      </div>
+                   </div>
+
+                   <div className="flex items-center gap-5">
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${gender ? "bg-success/20 text-success" : "bg-white/10 text-white/40"}`}>
+                         <Calendar className="w-7 h-7" />
+                      </div>
+                      <div>
+                         <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Demographics</p>
+                         <p className="text-sm font-black">{age ? `${age}yr • ${gender || "N/A"}` : "Awaiting Input"}</p>
+                      </div>
+                   </div>
+
+                   <div className="flex items-center gap-5">
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${phone && !phoneError ? "bg-success/20 text-success" : "bg-white/10 text-white/40"}`}>
+                         <Phone className="w-7 h-7" />
+                      </div>
+                      <div>
+                         <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Sync Gateway</p>
+                         <p className="text-sm font-black">{phone ? `+91 ${phone}` : "Awaiting Input"}</p>
+                      </div>
+                   </div>
+                </div>
+
+                <div className="pt-6 border-t border-white/10 relative z-10">
+                   <p className="text-xs text-white/40 font-medium italic leading-relaxed">
+                      "Clinical cohort analysis relies on accurate demographic clustering. Ensure patient ID documents 
+                      are verified where available."
+                   </p>
+                </div>
+             </div>
+
+             <div className="p-10 bg-info/5 border-2 border-info/10 rounded-[2.5rem] space-y-6">
+                <div className="flex items-center gap-3">
+                   <div className="w-1.5 h-6 bg-info rounded-full" />
+                   <h4 className="text-xs font-black text-info uppercase tracking-widest">Protocol Notice</h4>
+                </div>
+                <div className="space-y-4">
+                   <p className="text-xs text-muted-foreground font-medium leading-relaxed">
+                      All entered data is transmitted over TLS 1.3 and stored in alignment with 
+                      local digital healthcare data regulations.
+                   </p>
+                   <div className="flex items-center gap-2 px-4 py-2 bg-info/10 text-info rounded-xl w-fit">
+                      <div className="w-1.5 h-1.5 rounded-full bg-info animate-pulse" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Secure Endpoint Active</span>
+                   </div>
+                </div>
+             </div>
           </div>
         </div>
-
-        {/* Phone */}
-        <div className="space-y-1">
-          <label className="text-sm font-semibold text-foreground">Mobile Number</label>
-          <div className="flex">
-            <div className="flex items-center px-3 h-14 bg-muted border-2 border-r-0 border-border rounded-l-xl text-sm font-semibold text-foreground">
-              +91
-            </div>
-            <div className="relative flex-1">
-              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <input
-                type="tel"
-                inputMode="numeric"
-                placeholder="10-digit number"
-                value={phone}
-                onChange={(e) => handlePhoneChange(e.target.value)}
-                maxLength={10}
-                className={`w-full h-14 pl-10 pr-4 rounded-r-xl border-2 ${phoneError ? "border-destructive" : "border-border focus:border-primary"} bg-card text-foreground outline-none text-base`}
-              />
-            </div>
-          </div>
-          {phoneError && <p className="text-xs text-destructive ml-1">{phoneError}</p>}
-        </div>
-
-        {/* Location */}
-        <div className="space-y-1">
-          <label className="text-sm font-semibold text-foreground">Location / Village</label>
-          <div className="relative">
-            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Location or village name"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="w-full h-14 pl-12 pr-14 rounded-xl border-2 border-border focus:border-primary bg-card text-foreground outline-none text-base"
-            />
-            <button
-              type="button"
-              onClick={handleGetLocation}
-              disabled={fetchingLocation}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
-              title="Get current location"
-            >
-              <Navigation className={`w-4 h-4 text-primary ${fetchingLocation ? "animate-spin" : ""}`} />
-            </button>
-          </div>
-        </div>
-
-        <ActionButton onClick={handleProceed} disabled={!isValid}>
-          Continue
-        </ActionButton>
       </div>
-    </MobileLayout>
+    </DashboardLayout>
   );
 }

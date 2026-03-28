@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MobileLayout } from "@/components/layout/MobileLayout";
-import { ScreenHeader } from "@/components/layout/ScreenHeader";
 import { ActionButton } from "@/components/ui/ActionButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
-import { LogOut, Trash2, Shield, Lock, Bell, Moon, Languages, ChevronRight } from "lucide-react";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { LogOut, Trash2, Shield, Lock, Bell, Moon, Languages, ChevronRight, Loader2 } from "lucide-react";
 
 export default function SettingsScreen() {
   const navigate = useNavigate();
@@ -71,120 +70,173 @@ export default function SettingsScreen() {
   };
 
   return (
-    <MobileLayout className="bg-background">
-      <ScreenHeader title="Settings" onBack={() => navigate("/profile")} />
-
-      <div className="p-4 space-y-6 pb-20 overflow-y-auto">
-        {/* Account Section */}
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">Account</h3>
-          <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
-            <div className="p-4 flex items-center gap-4 border-b border-border/50">
-              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                <Shield className="w-5 h-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold truncate">{user?.email}</p>
-                <p className="text-[11px] text-muted-foreground capitalize">{profile?.role?.replace("-", " ")}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => navigate("/change-password")}
-              className="w-full p-4 flex items-center justify-between hover:bg-accent/50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <Lock className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Change Password</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </button>
+    <DashboardLayout>
+      <div className="max-w-6xl mx-auto py-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 px-4">
+          <div>
+            <h1 className="text-3xl font-black text-foreground mb-1">System Configurations</h1>
+            <p className="text-muted-foreground font-medium">Fine-tune your application preferences and security settings</p>
           </div>
         </div>
 
-        {/* Preferences Section */}
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">App Preferences</h3>
-          <div className="bg-card border border-border/50 rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 px-4 animate-fade-in">
+          {/* Left: Preferences & Identity */}
+          <div className="lg:col-span-7 space-y-8">
+            {/* Preferences Section */}
+            <div className="bg-card border border-border/50 rounded-[2.5rem] p-8 md:p-10 shadow-sm space-y-8">
+               <h3 className="text-xl font-black text-foreground uppercase tracking-widest flex items-center gap-3">
+                  <div className="w-2 h-8 bg-primary rounded-full" />
+                  App Preferences
+               </h3>
+
+               <div className="space-y-4">
+                  {[
+                    { 
+                      icon: Bell, 
+                      label: "Push Notifications", 
+                      desc: "Receive real-time alerts for screenings and system updates", 
+                      active: notificationsEnabled, 
+                      action: toggleNotifications 
+                    },
+                    { 
+                      icon: Moon, 
+                      label: "Dark Interface", 
+                      desc: "Toggle between light and high-contrast dark visual modes", 
+                      active: isDarkMode, 
+                      action: toggleDarkMode 
+                    },
+                  ].map((item) => (
+                    <button
+                      key={item.label}
+                      onClick={item.action}
+                      className="w-full group flex items-center justify-between p-6 rounded-3xl border-2 border-border/50 bg-secondary/5 hover:border-primary/30 transition-all duration-300 text-left"
+                    >
+                      <div className="flex items-center gap-6">
+                         <div className={`w-12 h-12 rounded-2xl bg-background flex items-center justify-center shadow-sm group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300 ${item.active ? "bg-primary/10 text-primary" : ""}`}>
+                            <item.icon className="w-6 h-6" />
+                         </div>
+                         <div>
+                            <p className="text-lg font-black text-foreground">{item.label}</p>
+                            <p className="text-xs text-muted-foreground font-medium">{item.desc}</p>
+                         </div>
+                      </div>
+                      <div className={`w-14 h-8 rounded-full relative transition-all duration-300 ${item.active ? "bg-primary shadow-lg shadow-primary/20" : "bg-muted"}`}>
+                        <div className={`absolute top-1.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-300 ${item.active ? "right-1.5" : "left-1.5"}`} />
+                      </div>
+                    </button>
+                  ))}
+
+                  <div className="flex items-center justify-between p-6 rounded-3xl bg-secondary/10 border border-border/50">
+                    <div className="flex items-center gap-6">
+                       <div className="w-12 h-12 rounded-2xl bg-background flex items-center justify-center shadow-sm">
+                          <Languages className="w-6 h-6 text-primary" />
+                       </div>
+                       <div>
+                          <p className="text-lg font-black text-foreground">Localization</p>
+                          <p className="text-xs text-muted-foreground font-medium">Selected system language and region</p>
+                       </div>
+                    </div>
+                    <span className="text-sm font-black text-primary bg-primary/10 px-4 py-1.5 rounded-full uppercase tracking-widest">English</span>
+                  </div>
+               </div>
+            </div>
+
+            {/* Account Info */}
+            <div className="bg-card border border-border/50 rounded-[2.5rem] p-8 md:p-10 shadow-sm relative overflow-hidden">
+               <div className="flex items-center justify-between mb-8">
+                  <h3 className="text-xl font-black text-foreground uppercase tracking-widest flex items-center gap-3">
+                     <div className="w-2 h-8 bg-primary rounded-full" />
+                     Credential Management
+                  </h3>
+                  <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
+                     <Shield className="w-6 h-6 text-primary" />
+                  </div>
+               </div>
+               
+               <div className="space-y-6">
+                  <div className="bg-secondary/10 rounded-3xl p-6 border border-border/50 flex items-center justify-between group cursor-default">
+                     <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-background flex items-center justify-center shadow-sm">
+                           <Lock className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                        <div>
+                           <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">SECURE IDENTITY</p>
+                           <p className="text-lg font-black text-foreground truncate">{user?.email}</p>
+                        </div>
+                     </div>
+                     <span className="text-[10px] font-black text-white bg-foreground px-3 py-1.5 rounded-lg uppercase tracking-widest">{profile?.role}</span>
+                  </div>
+
+                  <button
+                    onClick={() => navigate("/change-password")}
+                    className="w-full p-6 flex items-center justify-between rounded-3xl border-2 border-border/80 hover:border-primary hover:bg-primary/5 transition-all text-left group"
+                  >
+                    <div className="flex items-center gap-4">
+                       <p className="text-base font-black text-foreground">UPDATE ACCOUNT PASSWORD</p>
+                    </div>
+                    <ChevronRight className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-all group-hover:translate-x-2" />
+                  </button>
+               </div>
+            </div>
+          </div>
+
+          {/* Right: Security & Session */}
+          <div className="lg:col-span-5 space-y-8">
+            {/* Danger Zone */}
+            <div className="bg-destructive/5 border-2 border-destructive/20 rounded-[2.5rem] p-8 md:p-10 shadow-sm space-y-8">
+               <div className="space-y-4">
+                  <h3 className="text-xl font-black text-destructive uppercase tracking-widest flex items-center gap-3">
+                     <div className="w-2 h-8 bg-destructive rounded-full" />
+                     Critical Security
+                  </h3>
+                  <p className="text-sm text-muted-foreground font-medium leading-relaxed">
+                     Once an account is purged, all clinical records, history, and credentials 
+                     are permanently redacted from our medical cloud storage.
+                  </p>
+               </div>
+
+               <div className="space-y-6">
+                  <div className="space-y-3">
+                    <Label className="text-[11px] font-black text-foreground uppercase tracking-widest ml-1">Authentication Required</Label>
+                    <Input
+                      type="password"
+                      placeholder="Enter password to confirm purge..."
+                      className="h-14 rounded-2xl border-2 border-destructive/20 focus:border-destructive bg-white text-base font-medium px-6 outline-none transition-all shadow-inner"
+                      value={deletePassword}
+                      onChange={(e) => setDeletePassword(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    onClick={handleDelete}
+                    disabled={loading || !deletePassword}
+                    className="w-full py-5 rounded-[1.5rem] bg-destructive text-white font-black tracking-widest uppercase hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-destructive/20 disabled:opacity-50 flex items-center justify-center gap-3"
+                  >
+                    {loading ? (
+                       <Loader2 className="w-6 h-6 animate-spin" />
+                    ) : (
+                       <Trash2 className="w-6 h-6" />
+                    )}
+                    PURGE ACCOUNT PERMANENTLY
+                  </button>
+               </div>
+            </div>
+
             <button
-              onClick={toggleNotifications}
-              className="w-full p-4 flex items-center justify-between border-b border-border/50 hover:bg-accent/50 transition-colors text-left"
+              onClick={handleLogout}
+              className="w-full max-w-sm mx-auto py-5 bg-secondary border-2 border-border/80 rounded-[1.5rem] flex items-center justify-center gap-4 text-primary font-black uppercase tracking-widest hover:bg-secondary/80 active:scale-[0.95] transition-all shadow-lg"
             >
-              <div className="flex items-center gap-3">
-                <Bell className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Notifications</span>
-              </div>
-              <div className={`w-10 h-6 rounded-full relative transition-colors ${notificationsEnabled ? "bg-primary" : "bg-muted"}`}>
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${notificationsEnabled ? "right-1" : "left-1"}`} />
-              </div>
+              <LogOut className="w-6 h-6" />
+              TERMINATE SESSION
             </button>
-            <button
-              onClick={toggleDarkMode}
-              className="w-full p-4 flex items-center justify-between border-b border-border/50 hover:bg-accent/50 transition-colors text-left"
-            >
-              <div className="flex items-center gap-3">
-                <Moon className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Dark Mode</span>
-              </div>
-              <div className={`w-10 h-6 rounded-full relative transition-colors ${isDarkMode ? "bg-primary" : "bg-muted"}`}>
-                <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isDarkMode ? "right-1" : "left-1"}`} />
-              </div>
-            </button>
-            <div className="p-4 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Languages className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium">Language</span>
-              </div>
-              <span className="text-xs text-muted-foreground font-medium">English</span>
+
+            <div className="text-center pt-8">
+               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">
+                OralScan AI Platform • Clinical Suite • v2.0.4-WS
+              </p>
             </div>
           </div>
         </div>
-
-        {/* Danger Zone */}
-        <div className="space-y-3">
-          <h3 className="text-xs font-bold text-destructive uppercase tracking-wider px-1">Destructive actions</h3>
-          <div className="bg-card border border-destructive/20 rounded-2xl p-4 space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-destructive/10 rounded-xl flex items-center justify-center">
-                <Trash2 className="w-5 h-5 text-destructive" />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold">Delete Account</p>
-                <p className="text-[10px] text-muted-foreground">Permanently remove all your data</p>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-[11px] font-bold">Confirm your password</Label>
-              <Input
-                type="password"
-                placeholder="••••••••"
-                className="h-10 text-sm"
-                value={deletePassword}
-                onChange={(e) => setDeletePassword(e.target.value)}
-              />
-            </div>
-            <button
-              onClick={handleDelete}
-              disabled={loading || !deletePassword}
-              className="w-full h-11 border border-destructive/30 rounded-xl text-destructive font-bold text-sm hover:bg-destructive/5 active:scale-95 transition-all disabled:opacity-50"
-            >
-              {loading ? "Verifying..." : "Delete Permanently"}
-            </button>
-          </div>
-        </div>
-
-        <button
-          onClick={handleLogout}
-          className="w-full h-14 bg-accent/50 rounded-2xl flex items-center justify-center gap-2 text-primary font-bold shadow-sm active:scale-95 transition-all"
-        >
-          <LogOut className="w-5 h-5" />
-          Sign Out
-        </button>
-
-        <p className="text-center text-[10px] text-muted-foreground pt-4">
-          OralScan AI Platform • Version 2.0.4
-        </p>
       </div>
-    </MobileLayout>
+    </DashboardLayout>
   );
 }

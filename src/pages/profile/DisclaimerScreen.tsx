@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { MobileLayout } from "@/components/layout/MobileLayout";
-import { ScreenHeader } from "@/components/layout/ScreenHeader";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Shield, AlertCircle, FileText, Users } from "lucide-react";
 
 const sections = [
@@ -34,39 +33,65 @@ export default function DisclaimerScreen() {
   const navigate = useNavigate();
 
   return (
-    <MobileLayout className="pb-6">
-      <ScreenHeader title="Disclaimer" onBack={() => navigate("/profile")} />
-
-      <div className="px-4 pt-4 space-y-5 animate-fade-in">
-        {/* Header */}
-        <div className="flex items-start gap-4 bg-warning/10 border border-warning/30 rounded-2xl p-4">
-          <AlertCircle className="w-6 h-6 text-warning mt-0.5 flex-shrink-0" />
-          <div>
-            <p className="font-bold text-foreground">Important Notice</p>
-            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-              By using OralScan AI, you acknowledge and agree to the following terms and limitations.
-            </p>
+    <DashboardLayout>
+      <div className="max-w-5xl mx-auto py-12 px-4">
+        <div className="flex flex-col items-center text-center mb-16 space-y-4">
+          <div className="w-20 h-20 bg-warning/10 rounded-[2rem] flex items-center justify-center mb-4">
+            <Shield className="w-10 h-10 text-warning" />
           </div>
-        </div>
-
-        {sections.map(({ icon: Icon, title, content }) => (
-          <div key={title} className="bg-card rounded-2xl border border-border p-5">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Icon className="w-5 h-5 text-primary" />
-              </div>
-              <p className="font-bold text-foreground">{title}</p>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">{content}</p>
-          </div>
-        ))}
-
-        <div className="bg-muted rounded-xl p-4 text-center">
-          <p className="text-xs text-muted-foreground">
-            OralScan AI is compliant with applicable healthcare data regulations. For questions, contact your system administrator.
+          <h1 className="text-4xl font-black text-foreground uppercase tracking-tighter">Clinical Legal Protocol</h1>
+          <p className="text-muted-foreground font-medium text-lg max-w-2xl">
+            Important regulatory disclosures and operational limitations for the OralScan AI diagnostic support system.
           </p>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
+          {/* Main Warning Hero */}
+          <div className="md:col-span-2 flex items-start gap-8 bg-warning/5 border-2 border-warning/20 rounded-[3rem] p-10 md:p-14 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none group-hover:scale-110 transition-transform duration-700">
+               <AlertCircle className="w-64 h-64 text-warning" />
+            </div>
+            
+            <div className="w-16 h-16 rounded-2xl bg-warning flex items-center justify-center shrink-0 shadow-xl shadow-warning/20">
+               <AlertCircle className="w-8 h-8 text-white" />
+            </div>
+            <div className="relative z-10 space-y-4">
+              <h3 className="text-2xl font-black text-foreground">Critical Medical Notice</h3>
+              <p className="text-lg text-muted-foreground font-medium leading-relaxed">
+                By operating this terminal, you acknowledge that OralScan AI is a <span className="text-foreground font-black">Decision Support Tool</span>. 
+                AI results are generated algorithmically and require validation by a certified clinical professional.
+              </p>
+            </div>
+          </div>
+
+          {sections.map(({ icon: Icon, title, content }) => (
+            <div key={title} className="bg-card border border-border/50 rounded-[2.5rem] p-8 md:p-10 shadow-sm hover:border-primary/30 transition-all group flex flex-col justify-between">
+              <div className="space-y-6">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                  <Icon className="w-7 h-7 text-primary" />
+                </div>
+                <div className="space-y-3">
+                  <h4 className="text-xl font-black text-foreground uppercase tracking-widest">{title}</h4>
+                  <p className="text-sm text-muted-foreground font-medium leading-relaxed">{content}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-16 bg-secondary/20 border border-border/50 rounded-[2rem] p-10 text-center relative overflow-hidden">
+           <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+              <FileText className="w-full h-full text-foreground" />
+           </div>
+           <div className="relative z-10 space-y-4">
+              <p className="text-xs font-black text-muted-foreground uppercase tracking-[0.2em] mb-4">Regulatory Statement</p>
+              <p className="text-sm text-foreground font-bold leading-relaxed max-w-3xl mx-auto">
+                OralScan AI is compliant with international medical data residency protocols and protected via TLS 1.3 encryption. 
+                System ID: OS-AI-PLAT-2.0.4-WS-PROD
+              </p>
+           </div>
+        </div>
       </div>
-    </MobileLayout>
+    </DashboardLayout>
   );
 }

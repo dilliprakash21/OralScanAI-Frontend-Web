@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { MobileLayout } from "@/components/layout/MobileLayout";
-import { ScreenHeader } from "@/components/layout/ScreenHeader";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Info, AlertCircle } from "lucide-react";
 
 const indices = [
@@ -46,47 +45,71 @@ export default function AboutIndicesScreen() {
   const navigate = useNavigate();
 
   return (
-    <MobileLayout className="pb-6">
-      <ScreenHeader title="About Clinical Indices" onBack={() => navigate("/profile")} />
+    <DashboardLayout>
+      <div className="max-w-6xl mx-auto py-12 px-4">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-black text-foreground mb-3 uppercase tracking-tight">Clinical Index Encyclopedia</h1>
+          <p className="text-muted-foreground font-medium text-lg max-w-2xl mx-auto">
+            Scientific documentation of the validated oral health metrics used by the OralScan AI diagnostic engine.
+          </p>
+        </div>
 
-      <div className="px-4 pt-4 space-y-5 animate-fade-in">
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          OralScan AI uses the following validated clinical indices to assess oral health status.
-        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 animate-fade-in">
+          {indices.map((idx) => (
+            <div key={idx.name} className="flex flex-col bg-card border border-border/50 rounded-[2.5rem] overflow-hidden shadow-sm hover:border-primary/30 transition-all group">
+              {/* Header */}
+              <div className="bg-primary p-8 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:scale-110 transition-transform">
+                   <Info className="w-20 h-20 text-white" />
+                </div>
+                <div className="relative z-10">
+                  <h3 className="text-2xl font-black text-white leading-tight">{idx.name}</h3>
+                  <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mt-1">{idx.full}</p>
+                </div>
+              </div>
 
-        {indices.map((idx) => (
-          <div key={idx.name} className="bg-card rounded-2xl border border-border overflow-hidden">
-            {/* Header */}
-            <div className="bg-primary px-5 py-4">
-              <p className="font-bold text-primary-foreground">{idx.name}</p>
-              <p className="text-xs text-primary-foreground/70 mt-0.5">{idx.full}</p>
-            </div>
+              <div className="p-8 flex-1 flex flex-col space-y-8">
+                <p className="text-sm text-muted-foreground font-medium leading-relaxed italic">
+                  "{idx.description}"
+                </p>
 
-            <div className="p-5 space-y-4">
-              <p className="text-sm text-muted-foreground leading-relaxed">{idx.description}</p>
-
-              {/* Score Table */}
-              <div className="space-y-2">
-                <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Scoring</p>
-                {idx.scores.map(({ score, desc }) => (
-                  <div key={score} className="flex items-start gap-3">
-                    <span className="w-12 text-center bg-muted rounded-lg py-1 text-sm font-bold text-foreground flex-shrink-0">
-                      {score}
-                    </span>
-                    <p className="text-sm text-muted-foreground leading-relaxed pt-0.5">{desc}</p>
+                {/* Score Table */}
+                <div className="space-y-4 flex-1">
+                  <p className="text-[10px] font-black text-foreground uppercase tracking-widest flex items-center gap-2">
+                     <div className="w-4 h-1 bg-primary rounded-full" />
+                     Standardized Scoring Table
+                  </p>
+                  <div className="space-y-3">
+                    {idx.scores.map(({ score, desc }) => (
+                      <div key={score} className="flex items-start gap-4 p-3 rounded-2xl bg-secondary/10 border border-border/50">
+                        <span className="w-14 h-8 flex items-center justify-center bg-white border border-border rounded-xl text-sm font-black text-primary shrink-0 shadow-sm">
+                          {score}
+                        </span>
+                        <p className="text-xs text-foreground font-semibold leading-relaxed pt-1.5">{desc}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
 
-              {/* Interpretation */}
-              <div className="bg-accent rounded-xl p-3">
-                <p className="text-xs font-semibold text-foreground mb-1">Interpretation</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{idx.interpretation}</p>
+                {/* Interpretation */}
+                <div className="bg-primary/5 border-2 border-primary/20 rounded-2xl p-5 space-y-2">
+                  <div className="flex items-center gap-2">
+                     <AlertCircle className="w-4 h-4 text-primary" />
+                     <p className="text-[10px] font-black text-primary uppercase tracking-widest">Clinical Interpretation</p>
+                  </div>
+                  <p className="text-xs text-foreground font-bold leading-relaxed">{idx.interpretation}</p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        
+        <div className="mt-16 text-center">
+           <p className="text-xs text-muted-foreground font-medium italic">
+             References: Silness & Löe (1964), Löe & Silness (1963). Certified for OralScan AI Platform 2.0.
+           </p>
+        </div>
       </div>
-    </MobileLayout>
+    </DashboardLayout>
   );
 }
